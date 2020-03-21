@@ -11,9 +11,6 @@ int valueLed1 = LOW;
 
 
 
-
-
-
 WiFiServer server(80);
  
 void setup() {
