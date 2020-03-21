@@ -123,7 +123,7 @@ client.print("{\"temperatura\":\"");
 client.print(dht.readTemperature());
 client.print("\", \"vlaga\":\"");
 client.print(dht.readHumidity());
-client.print("\", \"led1\":\"");
+client.print("\", \"led1\":");
 
   if(valueLed1 == HIGH) {
     client.print("\"On\"");
