@@ -1,6 +1,15 @@
 
 
+
  #include <ESP8266WiFi.h>
+ #include <Adafruit_Sensor.h>
+#include <DHT.h>
+
+#define DHTPIN 5     // Digital pin connected to the DHT sensor
+#define DHTTYPE    DHT22     // DHT 22 (AM2302)
+
+DHT dht(DHTPIN, DHTTYPE);
+
  
 const char* ssid = "E49253";
 const char* password = "EVW32C0S00011471";
@@ -16,6 +25,7 @@ WiFiServer server(80);
 void setup() {
   Serial.begin(115200);
   delay(10);
+  dht.begin();
  
   pinMode(led1Pin, OUTPUT);
   digitalWrite(led1Pin, LOW);
@@ -109,7 +119,12 @@ void loop() {
 //  }
 //  client.println("</html>");
 
-client.print("{\"temperatura\":\"20\", \"vlaga\":\"2\", \"led1\":");
+client.print("{\"temperatura\":\"");
+client.print(dht.readTemperature());
+client.print("\", \"vlaga\":\"");
+client.print(dht.readHumidity());
+client.print("\", \"led1\":");
+
   if(valueLed1 == HIGH) {
     client.print("\"On\"");
   } else {
