@@ -7,8 +7,11 @@
 //CONFIG FOR DHT (temp and humidity)
 #define DHTPIN 14     // Digital pin connected to the DHT sensor
 #define DHTTYPE    DHT22     // DHT 22 (AM2302)
-
 DHT dht(DHTPIN, DHTTYPE);
+
+
+//define etanol
+float ETH_PPM;
 
 //pm 2.5, 10 config
 
@@ -117,6 +120,34 @@ void initPmCheck(){
  
   }
 
+  //alcohol MQ-3 sensor
+
+  void alcoholCheck(){
+
+
+   float sensor_volt;
+    float RS_gas; // Get value of RS in a GAS
+    float ratio; // Get ratio RS_GAS/RS_air
+    
+ 
+    int sensorValue = analogRead(A0);
+ 
+    sensor_volt=(float)sensorValue/1024*5.0;
+ 
+    RS_gas = (5.0-sensor_volt)/sensor_volt; // omit *RL /*-Replace the name "R0" with the value of R0 in the demo of First Test -*/
+ 
+    ratio = RS_gas/0.21;  // ratio = RS/R0
+
+for(int i = 0 ; i < 20 ; i++)
+   {
+      ETH_PPM =ETH_PPM + 0.037283 + (5.334452 - 0.197283)/(1 + pow((ratio/0.2771443), 3.229137));
+   }
+
+ETH_PPM = ETH_PPM/20;
+  
+
+  }
+
 //FOR MQ-6 sensor
 //void gasCheck(){ 
 //
@@ -139,7 +170,7 @@ void initPmCheck(){
  
 void loop() {
  initPmCheck();
- 
+ alcoholCheck();
 // gasCheck();
 
   // Check if a client has connected
@@ -201,8 +232,8 @@ client.print("\", \"PM:2.5\":\"");
 client.print(concentration2);
 client.print("\", \"PM:10\":\"");
 client.print(concentration1);
-client.print("\", \"LPG-PPM\":\"");
-client.print(LPG_PPM);
+client.print("\", \"Alcohol-PPM\":\"");
+client.print(ETH_PPM);
 
 client.print("\", \"led1\":");
 
