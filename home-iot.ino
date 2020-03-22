@@ -37,7 +37,7 @@ const char* ssid = "E49253";
 const char* password = "EVW32C0S00011471";
 
 //1st lightbulb config 
-int led1Pin = 13; // GPIO13
+int relay1Pin = 13; // GPIO13
 int valueLed1 = LOW;
 
 
@@ -52,8 +52,8 @@ void setup() {
   delay(10);
   dht.begin();
  
-  pinMode(led1Pin, OUTPUT);
-  digitalWrite(led1Pin, LOW);
+  pinMode(relay1Pin, OUTPUT);
+  digitalWrite(relay1Pin, LOW);
  
   // Connect to WiFi network
   Serial.println();
@@ -199,11 +199,11 @@ void loop() {
   if (request.indexOf("/led1") != -1)  {
     if(valueLed1 == LOW){
         valueLed1 = HIGH;
-       digitalWrite(led1Pin, valueLed1);
+       digitalWrite(relay1Pin, valueLed1);
       }
       else{
           valueLed1 = LOW;
-    digitalWrite(led1Pin, valueLed1);
+    digitalWrite(relay1Pin, valueLed1);
  
     }
   }
