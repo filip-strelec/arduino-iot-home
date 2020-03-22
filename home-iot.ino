@@ -4,18 +4,37 @@
  #include <ESP8266WiFi.h>
  #include <Adafruit_Sensor.h>
 #include <DHT.h>
-
+//CONFIG FOR DHT (temp and humidity)
 #define DHTPIN 14     // Digital pin connected to the DHT sensor
 #define DHTTYPE    DHT22     // DHT 22 (AM2302)
 
 DHT dht(DHTPIN, DHTTYPE);
 
- 
+//pm 2.5, 10 config
+
+int pin2 = 4;
+int pin1 = 5;
+unsigned long duration1;
+unsigned long duration2;
+
+unsigned long starttime;
+unsigned long sampletime_ms = 3000;//sampe 1s ;
+unsigned long lowpulseoccupancy1 = 0;
+unsigned long lowpulseoccupancy2 = 0;
+float ratio1 = 0;
+float ratio2 = 0;
+float concentration1 = 0;
+float concentration2 = 0;
+
+ //network config
 const char* ssid = "E49253";
 const char* password = "EVW32C0S00011471";
- 
+
+//1st lightbulb config 
 int led1Pin = 13; // GPIO13
 int valueLed1 = LOW;
+
+
 
 
 
@@ -54,10 +73,52 @@ void setup() {
   Serial.print("http://");
   Serial.print(WiFi.localIP());
   Serial.println("/");
+
+    starttime = millis();//get the current time; (for pm sensor)
  
 }
+
+void initPmCheck(){
+ duration1 = pulseIn(pin1, LOW);
+  duration2 = pulseIn(pin2, LOW);
+  lowpulseoccupancy1 = lowpulseoccupancy1+duration1;
+  lowpulseoccupancy2 = lowpulseoccupancy2+duration2;
+Serial.print(millis()-starttime);
+
+  if ((millis()-starttime) > sampletime_ms)//if the sampel time == 30s
+  {
+    ratio1 = lowpulseoccupancy1/(sampletime_ms*10.0);  // Integer percentage 0=>100
+    concentration1 = 1.1*pow(ratio1,3)-3.8*pow(ratio1,2)+520*ratio1+0.62; // using spec sheet curve
+
+    ratio2 = lowpulseoccupancy2/(sampletime_ms*10.0);  // Integer percentage 0=>100
+    concentration2 = 1.1*pow(ratio2,3)-3.8*pow(ratio2,2)+520*ratio2+0.62; // 
+
+       
+    Serial.print("concentration1 = ");
+    Serial.print(concentration1);
+    Serial.print(" pcs/0.01cf  -  ");
+
+    Serial.print("concentration2 = ");
+    Serial.print(concentration2);
+    Serial.print(" pcs/0.01cf  -  ");
+
+    
+
+     
+  }
+    
+
+      
+    lowpulseoccupancy1 = 0;
+    lowpulseoccupancy2 = 0;
+    starttime = millis();
+  }
+
+
+
  
 void loop() {
+ initPmCheck();
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) {
@@ -68,6 +129,7 @@ void loop() {
   Serial.println("new client");
   while(!client.available()){
     delay(1);
+    
     
   }
  
@@ -107,17 +169,6 @@ void loop() {
   client.println("HTTP/1.1 200 OK");
   client.println("Content-Type: application/json");
   client.println(""); //  do not forget this one
-//  client.println("<!DOCTYPE HTML>");
-//  client.println("<html>");
-// 
-//  client.print("Led pin: ");
-// 
-//  if(value == HIGH) {
-//    client.print("On");
-//  } else {
-//    client.print("Off");
-//  }
-//  client.println("</html>");
 
 client.print("{\"temperatura\":\"");
 client.print(dht.readTemperature());
