@@ -18,7 +18,7 @@ unsigned long duration1;
 unsigned long duration2;
 
 unsigned long starttime;
-unsigned long sampletime_ms = 3000;//sampe 1s ;
+unsigned long sampletime_ms = 30000;//sampe 1s ;
 unsigned long lowpulseoccupancy1 = 0;
 unsigned long lowpulseoccupancy2 = 0;
 float ratio1 = 0;
@@ -83,7 +83,7 @@ void initPmCheck(){
   duration2 = pulseIn(pin2, LOW);
   lowpulseoccupancy1 = lowpulseoccupancy1+duration1;
   lowpulseoccupancy2 = lowpulseoccupancy2+duration2;
-Serial.print(millis()-starttime);
+//Serial.print(millis()-starttime);
 
   if ((millis()-starttime) > sampletime_ms)//if the sampel time == 30s
   {
@@ -94,24 +94,24 @@ Serial.print(millis()-starttime);
     concentration2 = 1.1*pow(ratio2,3)-3.8*pow(ratio2,2)+520*ratio2+0.62; // 
 
        
-    Serial.print("concentration1 = ");
+    Serial.print("concentrationPM10 = ");
     Serial.print(concentration1);
     Serial.print(" pcs/0.01cf  -  ");
 
-    Serial.print("concentration2 = ");
+    Serial.print("concentration2.5 = ");
     Serial.print(concentration2);
     Serial.print(" pcs/0.01cf  -  ");
-
-    
+ Serial.println(" ");
+       lowpulseoccupancy1 = 0;
+    lowpulseoccupancy2 = 0;
+    starttime = millis();
 
      
   }
     
 
       
-    lowpulseoccupancy1 = 0;
-    lowpulseoccupancy2 = 0;
-    starttime = millis();
+ 
   }
 
 
@@ -174,6 +174,11 @@ client.print("{\"temperatura\":\"");
 client.print(dht.readTemperature());
 client.print("\", \"vlaga\":\"");
 client.print(dht.readHumidity());
+client.print("\", \"PM:2.5\":\"");
+client.print(concentration2);
+client.print("\", \"PM:10\":\"");
+client.print(concentration1);
+
 client.print("\", \"led1\":");
 
   if(valueLed1 == HIGH) {
