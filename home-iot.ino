@@ -26,6 +26,9 @@ float ratio2 = 0;
 float concentration1 = 0;
 float concentration2 = 0;
 
+//LPG CONFIG
+ float LPG_PPM;
+
  //network config
 const char* ssid = "E49253";
 const char* password = "EVW32C0S00011471";
@@ -115,10 +118,31 @@ void initPmCheck(){
   }
 
 
+void gasCheck(){
 
+   float sensor_volt;
+    float RS_gas; // Get value of RS in a GAS
+    float ratio; // Get ratio RS_GAS/RS_air
+   
+    float R0 = 0.75;
+    int sensorValue = analogRead(A0);
+ 
+    sensor_volt=(float)sensorValue/1024*5.0;
+ 
+    RS_gas = (5.0-sensor_volt)/sensor_volt; // omit *RL /*-Replace the name "R0" with the value of R0 in the demo of First Test -*/
+ 
+    ratio = RS_gas/R0;  // ratio = RS/R0
+   
+    LPG_PPM = 106.0382 + (14304.77 - 106.0382)/(1 + pow((ratio/0.4002885),2.885229) );
+ 
+}
  
 void loop() {
  initPmCheck();
+ gasCheck();
+ Serial.print("LPG PPM = ");
+    Serial.println(LPG_PPM);
+    Serial.print("\n\n");
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) {
