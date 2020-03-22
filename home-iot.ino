@@ -12,8 +12,8 @@ DHT dht(DHTPIN, DHTTYPE);
 
 //pm 2.5, 10 config
 
-int pin2 = 4;
-int pin1 = 5;
+int pin2 = 5;
+int pin1 = 4;
 unsigned long duration1;
 unsigned long duration2;
 
