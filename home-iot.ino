@@ -101,7 +101,7 @@ void initPmCheck(){
     Serial.print("concentration2.5 = ");
     Serial.print(concentration2);
     Serial.print(" pcs/0.01cf  -  ");
- Serial.println(" ");
+ Serial.println("_ ");
        lowpulseoccupancy1 = 0;
     lowpulseoccupancy2 = 0;
     starttime = millis();
