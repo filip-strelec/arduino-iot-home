@@ -202,6 +202,8 @@ client.print("\", \"PM:2.5\":\"");
 client.print(concentration2);
 client.print("\", \"PM:10\":\"");
 client.print(concentration1);
+client.print("\", \"LPG-PPM\":\"");
+client.print(LPG_PPM);
 
 client.print("\", \"led1\":");
 
