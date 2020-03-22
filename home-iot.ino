@@ -140,9 +140,7 @@ void gasCheck(){
 void loop() {
  initPmCheck();
  gasCheck();
- Serial.print("LPG PPM = ");
-    Serial.println(LPG_PPM);
-    Serial.print("\n\n");
+
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) {
