@@ -292,16 +292,35 @@ int protocolIndex = request.indexOf("protocol=")+9;
 String protocol = request.substring(protocolIndex);
  //Serial.println(address+ ":"+ code + ":"+ protocol);
  Serial.println(protocol);
-   Serial.println(addressHex);
-   Serial.println(codeHex);
+  // Serial.println(addressHex);
+   //Serial.println(codeHex);
 
+int repeatIndex = request.indexOf("repeat");
+   Serial.println(repeatIndex);
+   Serial.println("repeatIndex");
 
 
 if(protocol.indexOf("nec") != -1){
    Serial.println("protocol is nec");
 
+   if(repeatIndex >= 0){
+        Serial.println("repeating code");
+
+  for (int i=0; i<30; i++) {
+      IrSender.sendNEC(addressHex, codeHex, true, 0);
+delay(100); 
+   }
+
+     
+   }
+
+else {
+  Serial.println("Normal send code");
  IrSender.sendNEC(addressHex, codeHex, true, 0);
-delay(300); 
+delay(200); 
+
+
+}
 
 }
 
