@@ -1,6 +1,6 @@
 
-
  #include <ESP8266WiFi.h>
+ #include <IRremote.h> // >v3.0.0
  #include <Adafruit_Sensor.h>
 #include <DHT.h>
 //CONFIG FOR DHT (temp and humidity)
@@ -16,6 +16,7 @@ float ETH_PPM;
 
 int pin2 = 5;
 int pin1 = 4;
+int PIN_SEND = 16;
 unsigned long duration1;
 unsigned long duration2;
 
@@ -44,7 +45,7 @@ int relay2Pin = 0; //
 int valueLed2 = LOW;
 
 //3rd lightbulb config 
-int relay3Pin = 2; // 
+int relay3Pin = 3; // 
 int valueLed3 = LOW;
 
 int relayHeatingPin = 12;
@@ -57,13 +58,16 @@ int valueHeating = LOW;
 
 
 WiFiServer server(80);
+
+
  
 void setup() {
   
   Serial.begin(115200);
   delay(10);
   dht.begin();
- 
+   IrSender.begin(PIN_SEND); // Initializes IR sender
+
   pinMode(relay1Pin, OUTPUT);
   digitalWrite(relay1Pin, LOW);
 
@@ -103,6 +107,7 @@ void setup() {
  
   // Start the server
   server.begin();
+
   Serial.println(F("Server started"));
  
   // Print the IP address
@@ -156,30 +161,30 @@ void initPmCheck(){
   void alcoholCheck(){
 
 
-   float sensor_volt;
-    float RS_gas; // Get value of RS in a GAS
-    float ratio; // Get ratio RS_GAS/RS_air
+//    float sensor_volt;
+//     float RS_gas; // Get value of RS in a GAS
+//     float ratio; // Get ratio RS_GAS/RS_air
     
  
-    int sensorValue = analogRead(A0);
+//     int sensorValue = analogRead(A0);
  
-    sensor_volt=(float)sensorValue/1024*5.0;
+//     sensor_volt=(float)sensorValue/1024*5.0;
  
-    RS_gas = (5.0-sensor_volt)/sensor_volt; // omit *RL /*-Replace the name "R0" with the value of R0 in the demo of First Test -*/
+//     RS_gas = (5.0-sensor_volt)/sensor_volt; // omit *RL /*-Replace the name "R0" with the value of R0 in the demo of First Test -*/
  
-    ratio = RS_gas/0.21;  // ratio = RS/R0
+//     ratio = RS_gas/0.21;  // ratio = RS/R0
 
-for(int i = 0 ; i < 20 ; i++)
-   {
-      ETH_PPM =ETH_PPM + 0.037283 + (5.334452 - 0.197283)/(1 + pow((ratio/0.2771443), 3.229137));
-   }
+// for(int i = 0 ; i < 20 ; i++)
+//    {
+//       ETH_PPM =ETH_PPM + 0.037283 + (5.334452 - 0.197283)/(1 + pow((ratio/0.2771443), 3.229137));
+//    }
 
    
 
-ETH_PPM = ETH_PPM/20;
-if(ETH_PPM < 0.05) {
-  ETH_PPM = 0;
-  }
+// ETH_PPM = ETH_PPM/20;
+// if(ETH_PPM < 0.05) {
+//   ETH_PPM = 0;
+//   }
   
 
   }
@@ -206,7 +211,7 @@ if(ETH_PPM < 0.05) {
  
 void loop() {
  initPmCheck();
- alcoholCheck();
+ //alcoholCheck();
 // gasCheck();
 
   // Check if a client has connected
@@ -265,10 +270,79 @@ else if (request.indexOf("/led2") != -1)  {
   }
 
 
+else if (request.indexOf("/irsend") != -1)  {
+    
+//parameters in url example: (PROTOCOL MUST BE LAST)
+//http://192.168.1.65/irsend?address=0x7080&code=0xC7&protocol=nec  
+Serial.println(F("TESTING IR"));
+    Serial.println(request);
+
+int addressIndex=request.indexOf("address=")+8;
+int addressLastIndex= request.indexOf("&",addressIndex);
+String address=request.substring(addressIndex, addressLastIndex);
+ const char* addressChar = address.c_str();
+uint16_t addressHex = strtoul(addressChar, NULL, 0);
+int codeIndex = request.indexOf("code=")+5;
+int codeLastIndex = request.indexOf("&",codeIndex);
+String code = request.substring(codeIndex, codeLastIndex);
+ const char* codeChar = code.c_str();
+uint16_t codeHex = strtoul(codeChar, NULL, 0);
+
+int protocolIndex = request.indexOf("protocol=")+9;
+String protocol = request.substring(protocolIndex);
+ //Serial.println(address+ ":"+ code + ":"+ protocol);
+ Serial.println(protocol);
+   Serial.println(addressHex);
+   Serial.println(codeHex);
+
+
+
+if(protocol.indexOf("nec") != -1){
+   Serial.println("protocol is nec");
+
+ IrSender.sendNEC(addressHex, codeHex, true, 0);
+delay(300); 
+
+}
+
+else {
+ Serial.println("protocol is other");
+
+ IrSender.sendLG(addressHex, codeHex, true, 0); 
+delay(300); 
+
+
+}
+
+  //  IrSender.sendNEC(0xBF00, 0x44, true, 0); // test tv
+
+ // delay(100); // wait for one second
+   //IrSender.sendNEC(address, code, true, 0); // VOLUME UP LOGITECH
+ //IrSender.sendNEC(addressHex, codeHex, true, 0); // VOLUME UP LOGITECH
+
+  //IrSender.sendNEC(0x7080, 0xC7, true, 0); // VOLUME UP LOGITECH
+  //  IrSender.sendNEC(0xBF00, 0x44, true, 0); // test tv
+
+  //delay(100); // wait for one second
+  // IrSender.sendNEC(0x7080, 0xC7, true, 0); // VOLUME UP LOGITECH
+ //IrSender.sendNEC(addressHex, codeHex, true, 0); // VOLUME UP LOGITECH
+
+ // IrSender.sendNEC(0x7080, 0xC7, true, 0); // VOLUME UP LOGITECH
+  //  IrSender.sendNEC(0xBF00, 0x44, true, 0); // test tv
+
+  //delay(100); // wait for one second
+  //IrSender.sendNEC(0x7080, 0xC7, true, 0); // VOLUME UP LOGITECH
+  //  IrSender.sendNEC(0xBF00, 0x44, true, 0); // test tv
+ //IrSender.sendNEC(addressHex, codeHex, true, 0); // VOLUME UP LOGITECH
+
+  //delay(100); // wait for one second
+
+  }
+
 
  else if (request.indexOf("/led3") != -1)  {
 
-//  Serial.println("led3");
+ Serial.println("led3");
 //    Serial.println(valueLed3);
 
     if(valueLed3 == LOW){
