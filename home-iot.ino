@@ -323,7 +323,17 @@ delay(200);
 }
 
 }
+else if (protocol.indexOf("rc6") != -1) {
+   Serial.println("protocol is rc6");
+ IrSender.sendRC6(addressHex, codeHex, true, 0); 
 
+
+}
+else if (protocol.indexOf("rc5") != -1) {
+   Serial.println("protocol is rc5");
+ IrSender.sendRC5(addressHex, codeHex, true, 0); 
+
+}
 else {
  Serial.println("protocol is other");
 
